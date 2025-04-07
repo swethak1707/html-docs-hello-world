@@ -1,0 +1,32 @@
+name: Deploy static HTML to Azure Web App - secure-2025
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8C7A27C6EEE6474AA03440304EDA1AD2 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_798CD81A521C40EBBA99B16BCD51B4A3 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93984D7448F34FB696E6A1D0CB405D58 }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'secure-2025'
+          slot-name: 'Production'
+          package: .
