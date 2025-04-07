@@ -1,19 +1,24 @@
-# Simplified deploy workflow for static HTML to Azure Web App
+# .github/workflows/deploy.yml
 
 name: Deploy static HTML to Azure Web App - secure-2025
 
 on:
   push:
     branches:
-      - master
-  workflow_dispatch:
+      - master  # Trigger on push to master
+  workflow_dispatch:  # Allow manual trigger from Actions tab
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+      id-token: write  # Needed for OIDC login
+      contents: read   # Needed to check out repo content
+
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8C7A27C6EEE6474AA03440304EDA1AD2 }}
+      AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_798CD81A521C40EBBA99B16BCD51B4A3 }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93984D7448F34FB696E6A1D0CB405D58 }}
 
     steps:
       - name: Checkout code
@@ -22,13 +27,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8C7A27C6EEE6474AA03440304EDA1AD2 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_798CD81A521C40EBBA99B16BCD51B4A3 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_93984D7448F34FB696E6A1D0CB405D58 }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'secure-2025'
-          slot-name: 'Production'
-          package: .
+          app-name: 'secure-2025'       # Replace with your actual Azure Web App name if different
+          slot-name: 'Production'       # Use 'Production' or your specific deployment slot
+          package: '.'                  # Deploy the root of the repo (static HTML files)
